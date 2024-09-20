@@ -6,6 +6,7 @@ use App\Http\DTO\DoctorResponse;
 use App\Models\Doctor;
 use App\Models\Location;
 use App\Models\Specialty;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,13 +18,13 @@ class DoctorController extends Controller
             $validatedData = $request->validate([
                 'name' => 'required',
                 'specialtyId' => 'required',
-                'locationId' => 'required',
+                'locationId' => 'required|exists:locations,id',
                 'visitPrice' => 'required',
                 'bio' => 'required',
                 'workingDays' => 'required|array',
                 'workingDays.*.day' => 'required|string',
-                'workingDays.*.from' => 'required|date_format:H:i',
-                'workingDays.*.to' => 'required|date_format:H:i|after:workingDays.*.from'
+                'workingDays.*.from' => 'required|date_format:h:i A',
+                'workingDays.*.to' => 'required|date_format:h:i A|after:workingDays.*.from'
             ]);
 
             $doctor = Doctor::create([
@@ -35,10 +36,13 @@ class DoctorController extends Controller
             ]);
 
             foreach ($validatedData['workingDays'] as $workingDay) {
+                $fromTime = Carbon::createFromFormat('h:i A', $workingDay['from'])->format('H:i:s');
+                $toTime = Carbon::createFromFormat('h:i A', $workingDay['to'])->format('H:i:s');
+
                 $doctor->workingDays()->create([
                     'day' => $workingDay['day'],
-                    'from' => $workingDay['from'],
-                    'to' => $workingDay['to'],
+                    'from' => $fromTime,
+                    'to' => $toTime,
                 ]);
             }
 
@@ -60,7 +64,18 @@ class DoctorController extends Controller
     public function getAllDoctors(): JsonResponse
     {
         $doctors = Doctor::all();
-        return response()->json($doctors, 200);
+
+        $responseList = [];
+
+        foreach ($doctors as $doctor) {
+            $specialty = Specialty::where('id', $doctor->specialty_id)->first();
+            $location = Location::where('id', $doctor->location_id)->first();
+            $workingDays[] = $doctor->workingDays()->get();
+            $doctorResponse = new DoctorResponse($doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays);
+            $responseList[] = $doctorResponse;
+        }
+
+        return response()->json($responseList, 200);
     }
 
     public function updateDoctor(Request $request, $id): JsonResponse
@@ -102,14 +117,16 @@ class DoctorController extends Controller
     {
         try {
             $doctor = Doctor::where('id', $id)->first();
-            $doctorSpecialty = Specialty::where('id', $doctor->specialty_id)->first();
-            $specialtyName = $doctorSpecialty->name;
 
-            $doctorLocation = Location::where('id', $doctor->location_id)->first();
-            $address = $doctorLocation->address;
-            $locationUrl = $doctorLocation->location_url;
+            if (!$doctor) {
+                throw new \Exception('Doctor not found');
+            }
 
-            $doctorResponse = new DoctorResponse($doctor->name, $specialtyName, $address, $locationUrl, $doctor->visit_price, $doctor->bio);
+            $specialty = Specialty::where('id', $doctor->specialty_id)->first();
+            $location = Location::where('id', $doctor->location_id)->first();
+            $workingDays[] = $doctor->workingDays()->get();
+
+            $doctorResponse = new DoctorResponse($doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays);
             return response()->json($doctorResponse, 200);
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 424);

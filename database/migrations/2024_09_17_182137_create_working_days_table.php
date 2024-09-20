@@ -14,8 +14,8 @@ return new class extends Migration {
         Schema::create('working_days', function (Blueprint $table) {
             $table->id();
             $table->string('day');
-            $table->time('from');
-            $table->time('to');
+            $table->string('from');
+            $table->string('to');
             $table->foreignIdFor(Doctor::class, 'doctor_id')
                 ->constrained()
                 ->onDelete('cascade');
