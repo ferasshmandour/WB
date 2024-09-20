@@ -14,15 +14,16 @@ return new class extends Migration {
     {
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->default("feras");
+            $table->string('name');
             $table->foreignIdFor(Specialty::class, 'specialty_id')
                 ->default(1)
                 ->constrained();
             $table->foreignIdFor(Location::class, 'location_id')
                 ->default(1)
                 ->constrained();
-            $table->double('visit_price')->nullable();
-            $table->string('bio')->nullable();
+            $table->double('visit_price');
+            $table->string('bio');
+            $table->string('photo')->nullable();
             $table->timestamps();
         });
     }

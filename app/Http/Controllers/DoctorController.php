@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\DTO\DoctorResponse;
 use App\Models\Doctor;
 use App\Models\Location;
+use App\Models\Media;
 use App\Models\Specialty;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -24,15 +25,25 @@ class DoctorController extends Controller
                 'workingDays' => 'required|array',
                 'workingDays.*.day' => 'required|string',
                 'workingDays.*.from' => 'required|date_format:h:i A',
-                'workingDays.*.to' => 'required|date_format:h:i A|after:workingDays.*.from'
+                'workingDays.*.to' => 'required|date_format:h:i A|after:workingDays.*.from',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'media' => 'nullable|array',
+                'media.*' => 'file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240'
             ]);
+
+            $profilePhotoPath = null;
+            if ($request->hasFile('photo')) {
+                $profilePhoto = $request->file('photo');
+                $profilePhotoPath = $profilePhoto->store('photo', 'public');
+            }
 
             $doctor = Doctor::create([
                 'name' => $validatedData['name'],
                 'specialty_id' => $validatedData['specialtyId'],
                 'location_id' => $validatedData['locationId'],
                 'visit_price' => $validatedData['visitPrice'],
-                'bio' => $validatedData['bio']
+                'bio' => $validatedData['bio'],
+                'photo' => $profilePhotoPath
             ]);
 
             foreach ($validatedData['workingDays'] as $workingDay) {
@@ -44,6 +55,18 @@ class DoctorController extends Controller
                     'from' => $fromTime,
                     'to' => $toTime,
                 ]);
+            }
+
+            if ($request->hasFile('media')) {
+                foreach ($request->file('media') as $mediaFile) {
+                    $mediaFilePath = $mediaFile->store('media', 'public');
+
+                    Media::create([
+                        'doctor_id' => $doctor->id,
+                        'path' => $mediaFilePath,
+                        'type' => $mediaFile->getClientMimeType()
+                    ]);
+                }
             }
 
             $response = [
