@@ -21,7 +21,6 @@ return new class extends Migration {
             $table->foreignIdFor(Location::class, 'location_id')
                 ->default(1)
                 ->constrained();
-            $table->string('address')->nullable();
             $table->double('visit_price')->nullable();
             $table->string('bio')->nullable();
             $table->timestamps();

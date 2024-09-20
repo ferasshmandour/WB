@@ -9,3 +9,6 @@ Route::put('/updateDoctor/{id}', [DoctorController::class, 'updateDoctor']);
 Route::delete('/deleteDoctor/{id}', [DoctorController::class, 'deleteDoctor']);
 
 
+Route::get('/doctor/{id}', [DoctorController::class, 'getDoctorById']);
+
+

@@ -14,7 +14,8 @@ class LocationSeeder extends Seeder
     public function run(): void
     {
         Location::create([
-            'name' => 'Damascus'
+            'address' => 'الجسر الأبيض',
+            'location_url' => 'https://maps.app.goo.gl/eU8g2xZRswN8eagG9'
         ]);
     }
 }
