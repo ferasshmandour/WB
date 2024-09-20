@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             LocationSeeder::class,
-            SpecialtySeeder::class
+            SpecialtySeeder::class,
+            StatisticsSeeder::class
         ]);
     }
 }
