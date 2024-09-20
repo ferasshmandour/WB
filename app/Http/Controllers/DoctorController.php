@@ -94,7 +94,9 @@ class DoctorController extends Controller
             $specialty = Specialty::where('id', $doctor->specialty_id)->first();
             $location = Location::where('id', $doctor->location_id)->first();
             $workingDays[] = $doctor->workingDays()->get();
-            $doctorResponse = new DoctorResponse($doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays);
+            $media[] = $doctor->media()->get();
+
+            $doctorResponse = new DoctorResponse($doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays, $doctor->photo, $media);
             $responseList[] = $doctorResponse;
         }
 
@@ -148,8 +150,9 @@ class DoctorController extends Controller
             $specialty = Specialty::where('id', $doctor->specialty_id)->first();
             $location = Location::where('id', $doctor->location_id)->first();
             $workingDays[] = $doctor->workingDays()->get();
+            $media[] = $doctor->media()->get();
 
-            $doctorResponse = new DoctorResponse($doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays);
+            $doctorResponse = new DoctorResponse($doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays, $doctor->photo, $media);
             return response()->json($doctorResponse, 200);
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 424);

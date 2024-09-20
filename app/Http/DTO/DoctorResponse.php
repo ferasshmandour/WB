@@ -11,8 +11,10 @@ class DoctorResponse implements \JsonSerializable
     private ?string $visitPrice;
     private ?string $bio;
     private array $workingDays;
+    private ?string $photo;
+    private array $media;
 
-    public function __construct($name, $specialty, $address, $locationUrl, $visitPrice, $bio, $workingDays)
+    public function __construct($name, $specialty, $address, $locationUrl, $visitPrice, $bio, $workingDays, $photo, $media)
     {
         $this->name = $name;
         $this->specialty = $specialty;
@@ -21,6 +23,8 @@ class DoctorResponse implements \JsonSerializable
         $this->visitPrice = $visitPrice;
         $this->bio = $bio;
         $this->workingDays = $workingDays;
+        $this->photo = $photo;
+        $this->media = $media;
     }
 
     public function jsonSerialize(): array
@@ -33,6 +37,8 @@ class DoctorResponse implements \JsonSerializable
             'visitPrice' => $this->visitPrice,
             'bio' => $this->bio,
             'workingDays' => $this->workingDays,
+            'photo' => $this->photo,
+            'media' => $this->media
         ];
     }
 }
