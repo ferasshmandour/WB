@@ -2,43 +2,73 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AddDoctorRequest;
-use App\Http\Services\DoctorService;
-use Illuminate\Http\JsonResponse;
-
+use App\Models\Doctor;
+use Illuminate\Http\Request;
 
 class DoctorController extends Controller
 {
-    public function __construct(protected DoctorService $doctorService)
+    public function createDoctor(Request $request)
     {
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'specialty_id' => 'required',
+            'location_id' => 'required',
+            'address' => 'required',
+            'visit_price' => 'required',
+            'bio' => 'required'
+        ]);
+
+        Doctor::create([
+            'name' => $validatedData['name'],
+            'specialty_id' => $validatedData['specialty_id'],
+            'location_id' => $validatedData['location_id'],
+            'address' => $validatedData['address'],
+            'visit_price' => $validatedData['visit_price'],
+            'bio' => $validatedData['bio']
+        ]);
+
+        return response()->json('Doctor created successfully!', 201);
     }
 
-    public function getAllDoctors(): JsonResponse
+    public function getAllDoctors()
     {
-        try {
-            $doctors = $this->doctorService->getAllDoctors();
-            return response()->json($doctors, 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Failed to fetch doctors',
-                'message' => $e->getMessage(),
-            ], 424);
-        }
-
+        $doctors = Doctor::all();
+        return response()->json($doctors, 200);
     }
 
-    public function createDoctor(AddDoctorRequest $addDoctorRequest): JsonResponse
+    public function updateDoctor(Request $request, $id)
     {
         try {
-            $this->doctorService->createDoctor($addDoctorRequest);
-            return response()->json("Doctor added successfully", 201);
+            $validatedData = $request->validate([
+                'name' => 'required',
+                'specialty_id' => 'required',
+                'location_id' => 'required',
+                'address' => 'required',
+                'visit_price' => 'required',
+                'bio' => 'required'
+            ]);
+
+            $doctor = Doctor::where('id', $id)->first();
+            $doctor->update([
+                'name' => $validatedData['name'],
+                'specialty_id' => $validatedData['specialty_id'],
+                'location_id' => $validatedData['location_id'],
+                'address' => $validatedData['address'],
+                'visit_price' => $validatedData['visit_price'],
+                'bio' => $validatedData['bio']
+            ]);
+
+            return response()->json('Doctor updated successfully', 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Failed to add doctor',
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ], 500);
+            return response()->json($e->getMessage(), 424);
         }
+    }
+
+    public function deleteDoctor($id)
+    {
+        $doctor = Doctor::where('id', $id)->first();
+        $doctor->delete();
+        return response()->json('Doctor deleted successfully', 200);
     }
 
 }
