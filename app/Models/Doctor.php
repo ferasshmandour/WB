@@ -18,7 +18,8 @@ class Doctor extends Model
         'location_id',
         'address',
         'visit_price',
-        'bio'
+        'bio',
+        'photo'
     ];
 
     public function workingDays(): HasMany
