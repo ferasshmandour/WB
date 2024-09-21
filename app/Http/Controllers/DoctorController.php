@@ -144,7 +144,6 @@ class DoctorController extends Controller
             $doctor = Doctor::findOrFail($id);
 
             if ($request->hasFile('photo')) {
-                // Delete old photo if it exists
                 if ($doctor->photo) {
                     Storage::disk('public')->delete($doctor->photo);
                 }
@@ -221,21 +220,18 @@ class DoctorController extends Controller
     {
         try {
             $doctor = Doctor::where('id', $id)->firstOrFail();
-
             $mediaFiles = Media::where('doctor_id', $doctor->id)->get();
 
             foreach ($mediaFiles as $media) {
                 if (Storage::disk('public')->exists($media->path)) {
                     Storage::disk('public')->delete($media->path);
                 }
-
                 $media->delete();
             }
 
             if ($doctor->photo && Storage::disk('public')->exists($doctor->photo)) {
                 Storage::disk('public')->delete($doctor->photo);
             }
-
             $doctor->delete();
 
             return response()->json('Doctor deleted successfully', 200);
@@ -248,7 +244,6 @@ class DoctorController extends Controller
             ], 424);
         }
     }
-
 
     public function getDoctorById($id): JsonResponse
     {
@@ -272,4 +267,13 @@ class DoctorController extends Controller
         }
     }
 
+    public function getMediaByDoctorId($doctorId): JsonResponse
+    {
+        try {
+            $media = Media::where('doctor_id', $doctorId)->get();
+            return response()->json($media, 200);
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage(), 424);
+        }
+    }
 }
