@@ -74,11 +74,21 @@ class DoctorController extends Controller
             if ($request->hasFile('media')) {
                 foreach ($request->file('media') as $mediaFile) {
                     $mediaFilePath = $mediaFile->store('media', 'public');
+                    $mimeType = $mediaFile->getClientMimeType();
+                    $type = '';
+
+                    if (str_contains($mimeType, 'image')) {
+                        $type = 'image';
+                    }
+
+                    if (str_contains($mimeType, 'video')) {
+                        $type = 'video';
+                    }
 
                     Media::create([
                         'doctor_id' => $doctor->id,
                         'path' => $mediaFilePath,
-                        'type' => $mediaFile->getClientMimeType()
+                        'type' => $type
                     ]);
                 }
             }
@@ -192,11 +202,21 @@ class DoctorController extends Controller
 
                 foreach ($request->file('media') as $mediaFile) {
                     $mediaFilePath = $mediaFile->store('media', 'public');
+                    $mimeType = $mediaFile->getClientMimeType();
+                    $type = '';
+
+                    if (str_contains($mimeType, 'image')) {
+                        $type = 'image';
+                    }
+
+                    if (str_contains($mimeType, 'video')) {
+                        $type = 'video';
+                    }
 
                     Media::create([
                         'doctor_id' => $doctor->id,
                         'path' => $mediaFilePath,
-                        'type' => $mediaFile->getClientMimeType()
+                        'type' => $type
                     ]);
                 }
             }
