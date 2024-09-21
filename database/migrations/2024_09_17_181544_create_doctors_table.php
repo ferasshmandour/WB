@@ -16,10 +16,8 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->foreignIdFor(Specialty::class, 'specialty_id')
-                ->default(1)
                 ->constrained();
             $table->foreignIdFor(Location::class, 'location_id')
-                ->default(1)
                 ->constrained();
             $table->double('visit_price');
             $table->string('bio');

@@ -33,9 +33,9 @@ class DoctorController extends Controller
                 'workingDays.*.to' => 'required|date_format:h:i A|after:workingDays.*.from',
                 'devices' => 'required|array',
                 'devices.*.name' => 'required|string',
-                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
                 'media' => 'nullable|array',
-                'media.*' => 'file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240'
+                'media.*' => 'file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,webp|max:10240'
             ]);
 
             $profilePhotoPath = null;
@@ -136,9 +136,9 @@ class DoctorController extends Controller
                 'workingDays.*.from' => 'required_with:workingDays|date_format:h:i A',
                 'workingDays.*.to' => 'required_with:workingDays|date_format:h:i A|after:workingDays.*.from',
                 'devices' => 'sometimes|array',
-                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
                 'media' => 'nullable|array',
-                'media.*' => 'file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240'
+                'media.*' => 'file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,webp|max:10240'
             ]);
 
             $doctor = Doctor::findOrFail($id);
