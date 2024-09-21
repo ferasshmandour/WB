@@ -41,37 +41,43 @@ class HomeController extends Controller
         $location = $request->query('location');
         $specialty = $request->query('specialty');
 
-        $sql = null;
+        $doctors = null;
         if (!$location && !$specialty) {
-            $sql = DB::table('doctors')->get();
+            $doctors = DB::table('doctors')
+                ->join('locations', 'doctors.location_id', '=', 'locations.id')
+                ->join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
+                ->select(['doctors.id', 'doctors.name', 'specialties.name as specialty', 'locations.address as address', 'doctors.visit_price as visitPrice', 'doctors.bio', 'doctors.photo'])
+                ->get();
         }
 
         if ($location && !$specialty) {
-            $sql = DB::table('doctors')
-                ->select('doctors.*')
+            $doctors = DB::table('doctors')
                 ->join('locations', 'doctors.location_id', '=', 'locations.id')
+                ->join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
+                ->select(['doctors.id', 'doctors.name', 'specialties.name as specialty', 'locations.address as address', 'doctors.visit_price as visitPrice', 'doctors.bio', 'doctors.photo'])
                 ->where('locations.address', 'like', '%' . $location . '%')
                 ->get();
         }
 
         if (!$location && $specialty) {
-            $sql = DB::table('doctors')
-                ->select('doctors.*')
+            $doctors = DB::table('doctors')
+                ->join('locations', 'doctors.location_id', '=', 'locations.id')
                 ->join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
+                ->select(['doctors.id', 'doctors.name', 'specialties.name as specialty', 'locations.address as address', 'doctors.visit_price as visitPrice', 'doctors.bio', 'doctors.photo'])
                 ->where('specialties.name', 'like', '%' . $specialty . '%')
                 ->get();
         }
 
         if ($location && $specialty) {
-            $sql = DB::table('doctors')
-                ->select('doctors.*')
+            $doctors = DB::table('doctors')
                 ->join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
                 ->join('locations', 'doctors.location_id', '=', 'locations.id')
+                ->select(['doctors.id', 'doctors.name', 'specialties.name as specialty', 'locations.address as address', 'doctors.visit_price as visitPrice', 'doctors.bio', 'doctors.photo'])
                 ->where('specialties.name', 'like', '%' . $specialty . '%')
                 ->where('locations.address', 'like', '%' . $location . '%')
                 ->get();
         }
 
-        return response()->json($sql, 200);
+        return response()->json($doctors, 200);
     }
 }

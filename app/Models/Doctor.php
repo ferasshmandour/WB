@@ -27,6 +27,11 @@ class Doctor extends Model
         return $this->hasMany(WorkingDay::class);
     }
 
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
+    }
+
     public function media(): HasMany
     {
         return $this->hasMany(Media::class);

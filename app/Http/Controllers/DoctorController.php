@@ -26,6 +26,7 @@ class DoctorController extends Controller
                 'workingDays.*.day' => 'required|string',
                 'workingDays.*.from' => 'required|date_format:h:i A',
                 'workingDays.*.to' => 'required|date_format:h:i A|after:workingDays.*.from',
+                'devices' => 'required|array',
                 'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'media' => 'nullable|array',
                 'media.*' => 'file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240'
@@ -54,6 +55,13 @@ class DoctorController extends Controller
                     'day' => $workingDay['day'],
                     'from' => $fromTime,
                     'to' => $toTime,
+                ]);
+            }
+
+            foreach ($validatedData['devices'] as $device) {
+                $doctor->devices()->create([
+                    'name' => $device['name'],
+                    'doctor_id' => $doctor->id
                 ]);
             }
 
@@ -94,9 +102,10 @@ class DoctorController extends Controller
             $specialty = Specialty::where('id', $doctor->specialty_id)->first();
             $location = Location::where('id', $doctor->location_id)->first();
             $workingDays[] = $doctor->workingDays()->get();
+            $devices[] = $doctor->devices()->get();
             $media[] = $doctor->media()->get();
 
-            $doctorResponse = new DoctorResponse($doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays, $doctor->photo, $media);
+            $doctorResponse = new DoctorResponse($doctor->id, $doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays, $devices, $doctor->photo, $media);
             $responseList[] = $doctorResponse;
         }
 
@@ -150,9 +159,10 @@ class DoctorController extends Controller
             $specialty = Specialty::where('id', $doctor->specialty_id)->first();
             $location = Location::where('id', $doctor->location_id)->first();
             $workingDays[] = $doctor->workingDays()->get();
+            $devices[] = $doctor->devices()->get();
             $media[] = $doctor->media()->get();
 
-            $doctorResponse = new DoctorResponse($doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays, $doctor->photo, $media);
+            $doctorResponse = new DoctorResponse($doctor->id, $doctor->name, $specialty->name, $location->address, $location->location_url, $doctor->visit_price, $doctor->bio, $workingDays, $devices, $doctor->photo, $media);
             return response()->json($doctorResponse, 200);
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 424);
