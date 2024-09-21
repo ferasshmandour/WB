@@ -219,10 +219,36 @@ class DoctorController extends Controller
 
     public function deleteDoctor($id): JsonResponse
     {
-        $doctor = Doctor::where('id', $id)->first();
-        $doctor->delete();
-        return response()->json('Doctor deleted successfully', 200);
+        try {
+            $doctor = Doctor::where('id', $id)->firstOrFail();
+
+            $mediaFiles = Media::where('doctor_id', $doctor->id)->get();
+
+            foreach ($mediaFiles as $media) {
+                if (Storage::disk('public')->exists($media->path)) {
+                    Storage::disk('public')->delete($media->path);
+                }
+
+                $media->delete();
+            }
+
+            if ($doctor->photo && Storage::disk('public')->exists($doctor->photo)) {
+                Storage::disk('public')->delete($doctor->photo);
+            }
+
+            $doctor->delete();
+
+            return response()->json('Doctor deleted successfully', 200);
+        } catch (\Exception $e) {
+            Log::error('Error deleting doctor: ' . $e->getMessage());
+
+            return response()->json([
+                'message' => 'There was an error deleting the doctor. Please try again later.',
+                'status' => 424
+            ], 424);
+        }
     }
+
 
     public function getDoctorById($id): JsonResponse
     {
